@@ -5,13 +5,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.app.Request.makeRequestAndSaveToFile;
+import static com.app.Request.fetchHttpsResponse;
 
 class Product {
     private static final double DOLLARS_TO_LEI = 19.31;
@@ -40,14 +39,10 @@ class Product {
     public static FilteredProducts fetchProducts() throws IOException {
         List<Product> productList = new ArrayList<>();
         int page = 1;
-
         while (true) {
-            File tempFile = makeRequestAndSaveToFile(page);
-            if (tempFile == null) {
-                break;
-            }
+            String htmlContent = fetchHttpsResponse(page);
 
-            Document doc = Jsoup.parse(tempFile, "UTF-8");
+            Document doc = Jsoup.parse(htmlContent);
             Elements items = doc.select("li.ads-list-photo-item");
             if (items.isEmpty()) {
                 break;

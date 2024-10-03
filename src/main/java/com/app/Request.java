@@ -1,37 +1,43 @@
 package com.app;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Request {
-    static File makeRequestAndSaveToFile(int page) throws IOException {
-        String urlString = "https://999.md/ru/list/computers-and-office-equipment/laptops?page=" + page;
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
+    private static final String host = "999.md";
+    private static final String path = "/ru/list/computers-and-office-equipment/laptops";
 
-            File tempFile = File.createTempFile("page" + page, ".html");
-            try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
-                byte[] dataBuffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                    fileOutputStream.write(dataBuffer, 0, bytesRead);
+    public static String fetchHttpsResponse(int pageNumber) throws IOException {
+        StringBuilder response = new StringBuilder();
+        String pagePath = path + "?page=" + pageNumber;
+
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try (SSLSocket socket = (SSLSocket) factory.createSocket(host, 443)) {
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+            writer.print("GET " + pagePath + " HTTP/1.1\r\n");
+            writer.print("Host: " + host + "\r\n");
+            writer.print("Connection: close\r\n");
+            writer.print("\r\n");
+            writer.flush();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            String line;
+            boolean isBody = false;
+            while ((line = reader.readLine()) != null) {
+                if (line.isEmpty()) {
+                    isBody = true;
+                    continue;
+                }
+                if (isBody) {
+                    response.append(line).append("\n");
                 }
             }
-            return tempFile;
-        } else {
-            System.out.println("GET request failed: " + responseCode);
-            return null;
         }
+
+        return response.toString();
     }
 }
 

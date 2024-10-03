@@ -7,7 +7,7 @@ public class FilteredProducts {
 
     private List<Product> filteredProducts;
     private double totalPrice;
-    private LocalDateTime timestamp;  // UTC timestamp
+    private LocalDateTime timestamp;
 
     public FilteredProducts(List<Product> filteredProducts, double totalPrice) {
         this.filteredProducts = filteredProducts;
