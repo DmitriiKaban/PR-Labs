@@ -3,7 +3,7 @@ package com.app;
 import java.io.IOException;
 import java.util.List;
 
-import static com.app.Request.fetchProducts;
+import static com.app.Product.fetchProducts;
 
 public class App 
 {

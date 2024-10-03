@@ -1,40 +1,37 @@
 package com.app;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Request {
+    static File makeRequestAndSaveToFile(int page) throws IOException {
+        String urlString = "https://999.md/ru/list/computers-and-office-equipment/laptops?page=" + page;
+        URL url = new URL(urlString);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-    public static List<Product> fetchProducts() throws IOException {
-        List<Product> productList = new ArrayList<>();
-        int page = 1;
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
 
-        while (true) {
-            String url = "https://999.md/ru/list/computers-and-office-equipment/laptops?page=" + page;
-            Document doc = Jsoup.connect(url).get();
-
-            Elements items = doc.select("li.ads-list-photo-item");
-            if (items.isEmpty()) {
-                break;
+            File tempFile = File.createTempFile("page" + page, ".html");
+            try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+                 FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                    fileOutputStream.write(dataBuffer, 0, bytesRead);
+                }
             }
-
-            for (Element item : items) {
-                String name = item.select("div.ads-list-photo-item-title a").text();
-                String price = item.select("div.ads-list-photo-item-price span").text();
-
-                productList.add(new Product(name, price));
-            }
-
-            page++;
+            return tempFile;
+        } else {
+            System.out.println("GET request failed: " + responseCode);
+            return null;
         }
-
-        return productList;
     }
 }
 
