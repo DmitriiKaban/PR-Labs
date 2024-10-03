@@ -9,15 +9,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.app.Request.makeRequestAndSaveToFile;
 
 class Product {
+    private static final double DOLLARS_TO_LEI = 19.31;
     private String name;
-    private String price;
+    private Double price;
     private String manufacturer;
 
-    public Product(String name, String price, String manufacturer) {
+    public Product(String name, Double price, String manufacturer) {
         this.name = name;
         this.price = price;
         this.manufacturer = manufacturer;
@@ -27,7 +29,7 @@ class Product {
         return name;
     }
 
-    public String getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -35,7 +37,7 @@ class Product {
         return manufacturer;
     }
 
-    public static List<Product> fetchProducts() throws IOException {
+    public static FilteredProducts fetchProducts() throws IOException {
         List<Product> productList = new ArrayList<>();
         int page = 1;
 
@@ -74,15 +76,28 @@ class Product {
                 String productUrl = "https://999.md" + item.select("div.ads-list-photo-item-title a").attr("href");
 
                 String manufacturer = fetchManufacturer(productUrl);
-
-                productList.add(new Product(name, price, manufacturer));
+                Product product = new Product(name, parsePrice(price), manufacturer);
+                System.out.println("Adding product: " + product);
+                productList.add(product);
             }
 
             page++;
             break;
         }
 
-        return productList;
+        List<Product> filteredProducts = productList.stream()
+                .filter(product -> product.price > 250)
+                .collect(Collectors.toList());
+
+        double totalPrice = filteredProducts.stream()
+                .map(product -> product.price)
+                .reduce(0.0, Double::sum);
+
+        for (Product product : filteredProducts) {
+            System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
+        }
+
+        return new FilteredProducts(filteredProducts, totalPrice);
     }
 
     private static void validateName(String name) {
@@ -90,6 +105,22 @@ class Product {
             throw new IllegalArgumentException("Name contains latin letters");
         }
     }
+
+    private static Double parsePrice(String priceText) {
+        String cleanedPrice = priceText.replaceAll("[^0-9]", "");
+
+        if (!cleanedPrice.isEmpty()) {
+            double price = Double.parseDouble(cleanedPrice);
+
+            if (priceText.contains("леев")) {
+                price = Math.round(price / DOLLARS_TO_LEI * 100.0) / 100.0;
+            }
+
+            return price;
+        }
+        return null;
+    }
+
 
     private static String fetchManufacturer(String productUrl) throws IOException {
 
@@ -111,5 +142,14 @@ class Product {
         if (cleanedPrice.isEmpty()) {
             throw new IllegalArgumentException("Price is empty");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", manufacturer='" + manufacturer + '\'' +
+                '}';
     }
 }
