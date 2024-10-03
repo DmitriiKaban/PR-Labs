@@ -12,9 +12,12 @@ public class App
             FilteredProducts products = fetchProducts();
             System.out.println("Products:");
             System.out.println(products);
-//            for (Product product : products) {
-//                System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
-//            }
+
+            FilteredProducts filteredProducts = new FilteredProducts(products.getFilteredProducts(), products.getTotalPrice());
+            System.out.println("Filtered products:");
+
+            System.out.println(filteredProducts.toJson());
+            System.out.println(filteredProducts.toXml());
         } catch (IOException e) {
             e.printStackTrace();
         }

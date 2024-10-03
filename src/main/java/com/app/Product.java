@@ -84,15 +84,19 @@ class Product {
                 .filter(product -> product.price > 250)
                 .collect(Collectors.toList());
 
-        double totalPrice = filteredProducts.stream()
-                .map(product -> product.price)
-                .reduce(0.0, Double::sum);
+        double totalPrice = sumPrices(productList);
 
         for (Product product : filteredProducts) {
             System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
         }
 
         return new FilteredProducts(filteredProducts, totalPrice);
+    }
+
+    public static double sumPrices(List<Product> productList) {
+        return productList.stream()
+                .map(product -> product.price)
+                .reduce(0.0, Double::sum);
     }
 
     private static void validateName(String name) {
@@ -146,5 +150,20 @@ class Product {
                 ", price=" + price +
                 ", manufacturer='" + manufacturer + '\'' +
                 '}';
+    }
+
+    public String toJson() {
+        return String.format(
+                "{\"name\": \"%s\", \"price\": %.2f, \"manufacturer\": \"%s\"}",
+                name, price, manufacturer
+        );
+    }
+
+    public String toXml() {
+        return  "<Product>\n" +
+                "           <name>" + name + "</name>\n" +
+                "           <price>" + price + "</price>\n" +
+                "           <manufacturer>" + manufacturer + "</manufacturer>\n" +
+                "        </Product>";
     }
 }
