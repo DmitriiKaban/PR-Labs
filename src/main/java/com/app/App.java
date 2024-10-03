@@ -11,7 +11,7 @@ public class App
         try {
             List<Product> products = fetchProducts();
             for (Product product : products) {
-                System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice());
+                System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -12,13 +12,15 @@ import java.util.List;
 
 import static com.app.Request.makeRequestAndSaveToFile;
 
-public class Product {
+class Product {
     private String name;
     private String price;
+    private String manufacturer;
 
-    public Product(String name, String price) {
+    public Product(String name, String price, String manufacturer) {
         this.name = name;
         this.price = price;
+        this.manufacturer = manufacturer;
     }
 
     public String getName() {
@@ -27,6 +29,10 @@ public class Product {
 
     public String getPrice() {
         return price;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
     }
 
     public static List<Product> fetchProducts() throws IOException {
@@ -48,12 +54,30 @@ public class Product {
             for (Element item : items) {
                 String name = item.select("div.ads-list-photo-item-title a").text();
                 String price = item.select("div.ads-list-photo-item-price span").text();
-                productList.add(new Product(name, price));
+                String productUrl = "https://999.md" + item.select("div.ads-list-photo-item-title a").attr("href");
+
+                String manufacturer = fetchManufacturer(productUrl);
+
+                productList.add(new Product(name, price, manufacturer));
             }
 
             page++;
+//            break;
         }
 
         return productList;
+    }
+
+    private static String fetchManufacturer(String productUrl) throws IOException {
+
+        Document productDoc = Jsoup.connect(productUrl).get();
+
+        Element manufacturerElement = productDoc.selectFirst("li.m-value[itemprop=additionalProperty] span[itemprop=value] a");
+
+        if (manufacturerElement != null) {
+            return manufacturerElement.text();
+        }
+
+        return "Unknown";
     }
 }
