@@ -136,12 +136,23 @@ class Product {
 
     private static void validatePrice(String price) {
 
-        String cleanedPrice = price.replaceAll("[^\\d]", "");
+        String trimmedPrice = price.trim();
+        String cleanedPrice = trimmedPrice.replaceAll("[^\\d.]", "");
 
         if (cleanedPrice.isEmpty()) {
             throw new IllegalArgumentException("Price is empty");
         }
+
+        try {
+            double numericPrice = Double.parseDouble(cleanedPrice);
+            if (numericPrice <= 0) {
+                throw new IllegalArgumentException("Price is not positive");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid price format");
+        }
     }
+
 
     @Override
     public String toString() {
@@ -165,5 +176,20 @@ class Product {
                 "           <price>" + price + "</price>\n" +
                 "           <manufacturer>" + manufacturer + "</manufacturer>\n" +
                 "        </Product>";
+    }
+
+    public byte[] serializeToCustomForm() {
+        String data = String.format("name='%s', price=%.2f, manufacturer='%s'}",
+                name, price, manufacturer);
+        return data.getBytes();
+    }
+
+    public static Product deserializeFromCustomForm(byte[] serializedData) {
+        String data = new String(serializedData);
+        String[] parts = data.split(", ");
+        String name = parts[0].split("'")[1];
+        Double price = Double.parseDouble(parts[1].split("=")[1]);
+        String manufacturer = parts[2].split("'")[1].replace("}", "");
+        return new Product(name, price, manufacturer);
     }
 }

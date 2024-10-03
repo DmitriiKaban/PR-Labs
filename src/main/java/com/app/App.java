@@ -1,8 +1,10 @@
 package com.app;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.app.FilteredProducts.deserializeFromCustomForm;
 import static com.app.Product.fetchProducts;
 
 public class App 
@@ -16,8 +18,10 @@ public class App
             FilteredProducts filteredProducts = new FilteredProducts(products.getFilteredProducts(), products.getTotalPrice());
             System.out.println("Filtered products:");
 
-            System.out.println(filteredProducts.toJson());
-            System.out.println(filteredProducts.toXml());
+            byte[] serialized = filteredProducts.serializeToCustomForm();
+            System.out.println("Custom serialization: " + Arrays.toString(serialized));
+            FilteredProducts deserialized = deserializeFromCustomForm(serialized);
+            System.out.println("Custom deserialization: " + filteredProducts);
         } catch (IOException e) {
             e.printStackTrace();
         }
