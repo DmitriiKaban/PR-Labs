@@ -54,6 +54,23 @@ class Product {
             for (Element item : items) {
                 String name = item.select("div.ads-list-photo-item-title a").text();
                 String price = item.select("div.ads-list-photo-item-price span").text();
+
+                System.out.println("Name: " + name + ", Price: " + price);
+
+                try {
+                    validatePrice(price);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Skipping product: " + name + " because of invalid price");
+                    continue;
+                }
+
+                try {
+                    validateName(name);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Skipping product: " + name + " because of invalid manufacturer");
+                    continue;
+                }
+
                 String productUrl = "https://999.md" + item.select("div.ads-list-photo-item-title a").attr("href");
 
                 String manufacturer = fetchManufacturer(productUrl);
@@ -62,10 +79,16 @@ class Product {
             }
 
             page++;
-//            break;
+            break;
         }
 
         return productList;
+    }
+
+    private static void validateName(String name) {
+        if (name.matches(".*[a-zA-Z].*")) {
+            throw new IllegalArgumentException("Name contains latin letters");
+        }
     }
 
     private static String fetchManufacturer(String productUrl) throws IOException {
@@ -79,5 +102,14 @@ class Product {
         }
 
         return "Unknown";
+    }
+
+    private static void validatePrice(String price) {
+
+        String cleanedPrice = price.replaceAll("[^\\d]", "");
+
+        if (cleanedPrice.isEmpty()) {
+            throw new IllegalArgumentException("Price is empty");
+        }
     }
 }
