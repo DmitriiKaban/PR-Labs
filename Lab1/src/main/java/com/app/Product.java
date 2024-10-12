@@ -18,6 +18,9 @@ class Product {
     private Double price;
     private String manufacturer;
 
+    public Product() {
+    }
+
     public Product(String name, Double price, String manufacturer) {
         this.name = name;
         this.price = price;
@@ -39,7 +42,7 @@ class Product {
     public static FilteredProducts fetchProducts() throws IOException {
         List<Product> productList = new ArrayList<>();
         int page = 1;
-        while (page < 10) {
+        while (page < 6) {
             String htmlContent = fetchHttpsResponse(page);
 
             Document doc = Jsoup.parse(htmlContent);
@@ -52,19 +55,19 @@ class Product {
                 String name = item.select("div.ads-list-photo-item-title a").text();
                 String price = item.select("div.ads-list-photo-item-price span").text();
 
-                System.out.println("Name: " + name + ", Price: " + price);
+//                System.out.println("Name: " + name + ", Price: " + price);
 
                 try {
                     validatePrice(price);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Skipping product: " + name + " because of invalid price");
+//                    System.out.println("Skipping product: " + name + " because of invalid price");
                     continue;
                 }
 
                 try {
                     validateName(name);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Skipping product: " + name + " because of invalid name");
+//                    System.out.println("Skipping product: " + name + " because of invalid name");
                     continue;
                 }
 
@@ -72,7 +75,7 @@ class Product {
 
                 String manufacturer = fetchManufacturer(productUrl);
                 Product product = new Product(name, parsePrice(price), manufacturer);
-                System.out.println("Adding product: " + product);
+//                System.out.println("Adding product: " + product);
                 productList.add(product);
             }
 
@@ -86,9 +89,9 @@ class Product {
 
         double totalPrice = sumPrices(productList);
 
-        for (Product product : filteredProducts) {
-            System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
-        }
+//        for (Product product : filteredProducts) {
+//            System.out.println("Name: " + product.getName() + ", Price: " + product.getPrice() + ", Manufacturer: " + product.getManufacturer());
+//        }
 
         return new FilteredProducts(filteredProducts, totalPrice);
     }
@@ -153,7 +156,6 @@ class Product {
         }
     }
 
-
     @Override
     public String toString() {
         return "Product{" +
@@ -178,28 +180,11 @@ class Product {
                 "        </Product>";
     }
 
-    public byte[] serializeToCustomForm() {
-        String data = String.format("name='%s', price=%.2f, manufacturer='%s'}",
-                name, price, manufacturer);
-        return data.getBytes();
+    public String serialize() {
+        return MySerialization.serialize(this, Product.class);
     }
 
-    public static Product deserializeFromCustomForm(byte[] serializedData) {
-
-        String data = new String(serializedData);
-
-        String[] parts = data.split(", ");
-
-        try {
-            String name = parts[0].split("=")[1].replace("'", "");
-            Double price = Double.parseDouble(parts[1].split("=")[1]);
-            String manufacturer = parts[2].split("=")[1].replace("'", "").replace("}", "");
-
-            return new Product(name, price, manufacturer);
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            System.out.println("Error parsing the serialized data: " + e.getMessage());
-            return null;
-        }
+    public static Product deserialize(String data) {
+        return (Product) MySerialization.deserialize(new Product(), Product.class, data);
     }
-
 }

@@ -2,7 +2,6 @@ package com.app;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FilteredProducts {
@@ -11,16 +10,19 @@ public class FilteredProducts {
     private double totalPrice;
     private LocalDateTime timestamp;
 
+    public FilteredProducts() {
+    }
+
     public FilteredProducts(List<Product> filteredProducts, double totalPrice) {
         this.filteredProducts = filteredProducts;
         this.totalPrice = totalPrice;
-        this.timestamp = LocalDateTime.now();  // Capturing the UTC timestamp
+        this.timestamp = LocalDateTime.now();
     }
 
     public FilteredProducts(List<Product> filteredProducts, double totalPrice, LocalDateTime timestamp) {
         this.filteredProducts = filteredProducts;
         this.totalPrice = totalPrice;
-        this.timestamp = LocalDateTime.now();  // Capturing the UTC timestamp
+        this.timestamp = LocalDateTime.now();
     }
 
     public List<Product> getFilteredProducts() {
@@ -81,31 +83,11 @@ public class FilteredProducts {
         return xmlBuilder.toString();
     }
 
-    public byte[] serializeToCustomForm() {
-        StringBuilder dataBuilder = new StringBuilder();
-
-        for (Product product : filteredProducts) {
-            dataBuilder.append(new String(product.serializeToCustomForm())).append(";"); // Separate products with a semicolon
-        }
-
-        dataBuilder.append("totalPrice=").append(totalPrice).append(";");
-        dataBuilder.append("timestamp=").append(timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).append(";");
-
-        return dataBuilder.toString().getBytes();
+    public static FilteredProducts deserialize(String data) {
+        return (FilteredProducts) MySerialization.deserialize(new FilteredProducts(), FilteredProducts.class, data);
     }
 
-    public static FilteredProducts deserializeFromCustomForm(byte[] serializedDataBytes) {
-        String data = new String(serializedDataBytes);
-        String[] parts = data.split(";");
-
-        List<Product> filteredProducts = new ArrayList<>();
-        for (int i = 0; i < parts.length - 2; i++) { // Last two parts are totalPrice and timestamp
-            filteredProducts.add(Product.deserializeFromCustomForm(parts[i].getBytes()));
-        }
-
-        double totalPrice = Double.parseDouble(parts[parts.length - 2].split("=")[1]);
-        LocalDateTime timestamp = LocalDateTime.parse(parts[parts.length - 1].split("=")[1]);
-
-        return new FilteredProducts(filteredProducts, totalPrice, timestamp);
+    public String serialize() {
+        return MySerialization.serialize(this, this.getClass());
     }
 }
