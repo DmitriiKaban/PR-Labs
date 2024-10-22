@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-edit {
+            background-color: #4CAF50;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+        }
+
+        .btn-cancel {
+            background-color: #777;
+        }
+
+        .nav {
+            margin-bottom: 20px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #007BFF;
+            margin: 0 10px;
+            font-size: 16px;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-save {
+            background-color: #28a745; /* Green background */
+            color: white;              /* White text */
+            padding: 10px 20px;        /* Add some padding */
+            text-decoration: none;     /* Remove the underline */
+            border-radius: 5px;        /* Rounded corners */
+            display: inline-block;     /* Make it behave like a button */
+            border: none;              /* Remove border */
+            cursor: pointer;           /* Change cursor to pointer */
+        }
+
+        .btn-save:hover {
+            background-color: #218838; /* Darker green on hover */
+            color: white;              /* Ensure text stays white on hover */
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Data Table</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Manufacturer</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="data : ${products}" id="row-${data.id}">
+        <td th:text="${data.name}"></td>
+        <td th:text="${data.price}"></td>
+        <td th:text="${data.manufacturer}"></td>
+        <td>
+            <form th:action="@{/admin/editRow/{id}(id=${data.id})}" method="get" style="display:inline;">
+                <input type="hidden" name="id" th:value="${data.id}" />
+                <button type="submit" class="btn btn-edit">Edit</button>
+            </form>
+
+            <form th:action="@{/admin/deleteRow/{id}(id=${data.id})}" method="post" style="display:inline;">
+                <input type="hidden" name="_method" value="delete" />
+                <button type="submit" class="btn btn-delete">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
