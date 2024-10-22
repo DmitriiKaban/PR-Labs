@@ -3,10 +3,14 @@ package com.app.lab2.controllers;
 import com.app.lab2.models.Product;
 import com.app.lab2.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
@@ -16,9 +20,48 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/products")
-    public String showProducts(Model model) {
-        List<Product> products = productService.getAllProducts();
-        model.addAttribute("products", products);
+    public String showProducts(Model model,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "9") int size) {
+        Page<Product> productPage = productService.getPaginatedProducts(page, size);
+
+        for (Product product : productPage) {
+            product.setName(URLDecoder.decode(product.getName(), StandardCharsets.UTF_8));
+        }
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
         return "products";
+    }
+
+    @GetMapping("/editRow/{id}")
+    public String editRow(@PathVariable Long id, Model model) {
+
+        System.out.println("Edit row id: " + id);
+
+        Product userData = productService.findById(id);
+        userData.setName(URLDecoder.decode(userData.getName(), StandardCharsets.UTF_8));
+        model.addAttribute("product", userData);
+        return "edit";
+    }
+
+    @PostMapping("/deleteRow/{id}")
+    public String deleteRow(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        productService.deleteById(id);
+        redirectAttributes.addFlashAttribute("success", true);
+        return "redirect:/products";
+    }
+
+    @PostMapping("/updateRow/{id}")
+    public String updateRow(@PathVariable Long id, @ModelAttribute Product userData, RedirectAttributes redirectAttributes) {
+
+        Product existingData = productService.findById(id);
+        existingData.setName(userData.getName());
+        existingData.setManufacturer(userData.getManufacturer());
+        existingData.setPrice(userData.getPrice());
+        productService.editProduct(existingData);
+        redirectAttributes.addFlashAttribute("success", true);
+        return "redirect:/products";
     }
 }

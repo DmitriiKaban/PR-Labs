@@ -1,7 +1,5 @@
 package com.app.lab2;
 
-import com.app.lab2.services.ProductScanner;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,8 +21,6 @@ public class Lab2Application {
     @Value("${spring.datasource.password}")
     private String datasourcePassword;
 
-    private final ProductScanner productScanner;
-
     public static void main(String[] args) {
         SpringApplication.run(Lab2Application.class, args);
     }
@@ -33,7 +29,8 @@ public class Lab2Application {
     public DataSource dataSource() {
 
         PoolProperties p = new PoolProperties();
-        p.setUrl(datasourceUrl);
+        // Add useUnicode=true and characterEncoding=utf8mb4 to the URL
+        p.setUrl("jdbc:mysql://localhost:3308/laptops?useUnicode=true&characterEncoding=utf8");
         p.setDriverClassName("com.mysql.cj.jdbc.Driver");
         p.setUsername(datasourceUsername);
         p.setPassword(datasourcePassword);
@@ -42,8 +39,4 @@ public class Lab2Application {
         return datasource;
     }
 
-    @PostConstruct
-    public void loadInitialDataInDB() {
-        productScanner.importProducts();
-    }
 }

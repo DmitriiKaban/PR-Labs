@@ -24,7 +24,8 @@ public class Scraper {
 
         List<Product> productList = new ArrayList<>();
         int page = 1;
-        while (page < 10) {
+        int maxPages = 2;
+        while (page < maxPages) {
             String htmlContent;
             try {
                 htmlContent = requests.fetchHttpsResponse(page);
@@ -68,7 +69,6 @@ public class Scraper {
             }
 
             page++;
-//            break;
         }
 
         return productList;
@@ -103,10 +103,11 @@ public class Scraper {
     }
 
     private static void validateName(String name) {
-        if (name.matches(".*[a-zA-Z].*")) {
-            throw new IllegalArgumentException("Name contains latin letters");
+        if (name.matches(".*[а-яА-ЯЁёЇїІіЄєҐґ].*")) {
+            throw new IllegalArgumentException("Name contains Cyrillic letters");
         }
     }
+
 
     private static void validatePrice(String price) {
 

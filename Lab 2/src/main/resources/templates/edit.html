@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        div {
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+        }
+
+        .cancel-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .cancel-link a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 16px;
+        }
+
+        .cancel-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>Edit Last Added Data</h1>
+
+    <!-- Display success message if available -->
+    <div th:if="${success}" class="message">
+        <p>Changes saved successfully!</p>
+    </div>
+
+    <!-- Edit Form -->
+    <form th:action="@{/updateRow/{id}(id=${product.id})}" th:object="${product}" method="post">
+        <div>
+            <label for="field1">Name:</label>
+
+            <input type="text" id="field1" th:field="*{name}" required />
+        </div>
+        <div>
+            <label for="field2">Price:</label>
+            <input type="text" id="field2" th:field="*{price}" required />
+        </div>
+        <div>
+            <label for="field3">Manufacturer:</label>
+            <input type="text" id="field3" th:field="*{manufacturer}" required />
+        </div>
+        <button type="submit">Save Changes</button>
+        <div class="cancel-link">
+            <a href="/products">Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
