@@ -19,7 +19,7 @@ public class MySerialization {
     public static Object deserialize(Object object, Class<?> clazz, String data) {
         Map<String, String> fieldValues = new HashMap<>();
 
-        String listRegex = "(\\w+)=>\\|([^$]+\\$[^$]+\\$*\\$)";
+        String listRegex = "(\\w+)=>([^$]+\\$[^$]+\\$*\\$)";
 
         Pattern listPattern = Pattern.compile(listRegex, Pattern.DOTALL);
         Matcher listMatcher = listPattern.matcher(data);
@@ -28,7 +28,7 @@ public class MySerialization {
             String key = listMatcher.group(1);
             String listValue = listMatcher.group(2).trim();
 //            System.out.println("List Value: " + listValue);
-            fieldValues.put(key, "=>" + listValue + "|");
+            fieldValues.put(key, "=>" + listValue);
         }
 
         String remainingFields = data;
@@ -78,7 +78,7 @@ public class MySerialization {
                 if (value instanceof LocalDateTime) {
                     value = ((LocalDateTime) value).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 } else if (value instanceof List<?>) {
-                    serializedData.append(field.getName()).append("=>|");
+                    serializedData.append(field.getName()).append("=>");
                     List<?> list = (List<?>) value;
                     for (Object item : list) {
                         serializedData.append(serialize(item, item.getClass()));
