@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User Data</title>
+    <title>Create New Product</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -85,17 +85,25 @@
 </head>
 <body>
 
-<div class="form-container">
-    <h1>Edit Last Added Data</h1>
+<!-- Success message -->
+<div th:if="${successFile}" class="message">
+    <p th:text="${successFile}"></p>
+</div>
 
-    <!-- Display success message if available -->
+<!-- Error message -->
+<div th:if="${error}" class="message" style="color:red;">
+    <p th:text="${error}"></p>
+</div>
+
+
+<div class="form-container">
+    <h1>Create New Product</h1>
+
     <div th:if="${success}" class="message">
-        <p>Changes saved successfully!</p>
+        <p>Product created successfully!</p>
     </div>
 
-    <!-- Edit Form -->
-    <form th:action="@{/updateRow/{id}(id=${product.id})}" th:object="${product}" method="post">
-        <input type="hidden" name="_method" value="put" />
+    <form th:action="@{/createProduct}" th:object="${product}" method="post">
         <div>
             <label for="field1">Name:</label>
             <input type="text" id="field1" th:field="*{name}" required />
@@ -108,10 +116,21 @@
             <label for="field3">Manufacturer:</label>
             <input type="text" id="field3" th:field="*{manufacturer}" required />
         </div>
-        <button type="submit">Save Changes</button>
+        <button type="submit">Create Product</button>
         <div class="cancel-link">
             <a href="/products">Cancel</a>
         </div>
+    </form>
+
+
+    <h2>Upload JSON File</h2>
+
+    <form th:action="@{/uploadJson}" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="jsonFile">Choose JSON File:</label>
+            <input type="file" id="jsonFile" name="file" accept=".json" required />
+        </div>
+        <button type="submit">Upload and Process</button>
     </form>
 
 </div>
