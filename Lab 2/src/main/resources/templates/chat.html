@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <script src="https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #nameInputSection, #messageInputSection {
+            display: none;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #nameInputSection {
+            flex-grow: 1;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+        }
+
+        #messageInputSection {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #messageInputSection input[type="text"], #nameInputSection input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #messageInputSection button, #nameInputSection button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #messageInputSection button:hover, #nameInputSection button:hover {
+            background-color: #45a049;
+        }
+
+        #messageArea {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #messageArea ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #messageArea li {
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 15px;
+            border-radius: 20px;
+            background-color: #e6e6e6;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-left: 10px;
+            white-space: nowrap;
+            align-self: flex-end;
+        }
+
+        .ellipse {
+            border-radius: 20px;
+        }
+
+        /* Blurred effect on the chat area */
+        .blurred {
+            filter: blur(5px);
+            pointer-events: none; /* Prevent interaction until the blur is removed */
+        }
+
+        /* Overlay for the name input */
+        #nameInputOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #nameInputOverlay input {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        #nameInputOverlay button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #nameInputOverlay button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div id="messageArea" class="blurred">
+    <ul id="messages"></ul>
+</div>
+
+<div id="messageInputSection" class="blurred">
+    <input type="text" id="message" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<!-- Name input overlay -->
+<div id="nameInputOverlay">
+    <input type="text" id="nameInput" placeholder="Enter your name...">
+    <button onclick="enterChat()">Enter Chat</button>
+</div>
+
+<script type="text/javascript">
+    var stompClient = null;
+    var userName = '';
+
+    // Initialize WebSocket and STOMP client
+    function connect() {
+        var socket = new SockJS('/chat');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Subscribe to the public topic
+            stompClient.subscribe('/topic/public', function (messageOutput) {
+                showMessage(JSON.parse(messageOutput.body));
+            });
+
+            // Fetch previous messages from the server
+            fetch('/chat/messages')
+                .then(response => response.json())
+                .then(messages => {
+                    messages.forEach(message => {
+                        showMessage(message);
+                    });
+                });
+        });
+    }
+
+    // When user enters their name and joins the chat
+    function enterChat() {
+        var nameInput = document.getElementById("nameInput");
+        userName = nameInput.value.trim();
+
+        if (userName) {
+            document.getElementById("nameInputOverlay").style.display = "none"; // Hide overlay
+            document.getElementById("messageArea").classList.remove("blurred");  // Remove blur from chat area
+            document.getElementById("messageInputSection").classList.remove("blurred"); // Remove blur from input
+
+            connect();  // Connect to WebSocket after entering the name
+        }
+    }
+
+    // Send message to WebSocket server
+    function sendMessage() {
+        var messageInput = document.getElementById("message");
+        var messageContent = messageInput.value.trim();
+
+        if (messageContent) {
+            stompClient.send("/app/sendMessage", {}, JSON.stringify({
+                'content': messageContent,
+                'sender': userName  // Use the user's name
+            }));
+
+            messageInput.value = "";
+        }
+    }
+
+    // Show messages in the chat
+    function showMessage(message) {
+        var messageArea = document.getElementById("messages");
+        var messageElement = document.createElement('li');
+
+        // Create message bubble
+        var messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble ellipse';
+
+        var sender = document.createElement('div');
+        sender.className = 'message-sender';
+        sender.textContent = message.sender;
+
+        var content = document.createElement('div');
+        content.textContent = message.content;
+
+        messageBubble.appendChild(sender);
+        messageBubble.appendChild(content);
+
+        var timestamp = document.createElement('div');
+        timestamp.className = 'timestamp';
+        timestamp.textContent = message.timestamp;
+
+        messageElement.appendChild(messageBubble);
+        messageElement.appendChild(timestamp);
+        messageArea.appendChild(messageElement);
+
+        messageArea.scrollTop = messageArea.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
