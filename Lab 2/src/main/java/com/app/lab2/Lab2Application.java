@@ -7,9 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.apache.tomcat.jdbc.pool.DataSource;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@EnableAsync
 public class Lab2Application {
 
     @Value("${spring.datasource.url}")
@@ -29,8 +31,8 @@ public class Lab2Application {
     public DataSource dataSource() {
 
         PoolProperties p = new PoolProperties();
-        // Add useUnicode=true and characterEncoding=utf8mb4 to the URL
-        p.setUrl("jdbc:mysql://localhost:3308/laptops?useUnicode=true&characterEncoding=utf8");
+//        p.setUrl("jdbc:mysql://localhost:3308/laptops?useUnicode=true&characterEncoding=utf8");
+        p.setUrl(datasourceUrl);
         p.setDriverClassName("com.mysql.cj.jdbc.Driver");
         p.setUsername(datasourceUsername);
         p.setPassword(datasourcePassword);

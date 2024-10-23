@@ -2,6 +2,7 @@ package com.app.lab2.controllers;
 
 import com.app.lab2.models.ChatMessage;
 import com.app.lab2.repositories.ChatMessagesRepository;
+import com.app.lab2.services.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -19,13 +20,14 @@ import java.util.List;
 public class ChatController {
 
     private final ChatMessagesRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
 
     @MessageMapping("/sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(ChatMessage message) {
 
         message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        chatMessageRepository.save(message);
+        chatMessageService.processChatMessage(message);
 
         return message;
     }
