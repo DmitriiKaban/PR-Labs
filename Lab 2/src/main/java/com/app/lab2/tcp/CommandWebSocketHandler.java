@@ -21,6 +21,12 @@ public class CommandWebSocketHandler extends TextWebSocketHandler {
     private String processCommand(String command) {
         System.out.println("Received command: " + command);
 
+        try {
+            Thread.sleep((long) (Math.random() * 4000 + 1000));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         if (command.startsWith("write ")) {
             String data = command.substring("write".length()).trim();
             FileAccess.writeToFile(data);

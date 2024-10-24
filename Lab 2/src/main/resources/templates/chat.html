@@ -248,7 +248,8 @@
         messageElement.appendChild(timestamp);
         messageArea.appendChild(messageElement);
 
-        messageArea.scrollTop = messageArea.scrollHeight;
+        var messageAreaContainer = document.getElementById("messageArea");
+        messageAreaContainer.scrollTop = messageAreaContainer.scrollHeight;
     }
 </script>
 

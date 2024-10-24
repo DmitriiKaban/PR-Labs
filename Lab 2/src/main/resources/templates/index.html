@@ -4,18 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Command Sender</title>
+    <!-- Google Fonts for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset default styles */
+        body, h1, h2, form, div, input, button {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 30px;
+            color: #4a4a4a;
+        }
+
+        /* Centered container for the form */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #ffffff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Response area styling */
+        #response {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>WebSocket Command Sender</h1>
-<form action="/sendCommand" method="POST">
-    <label for="command">Enter Command:</label>
-    <input type="text" id="command" name="command" placeholder="READ, WRITE 1 data, etc." required>
-    <button type="submit">Send Command</button>
-</form>
+<div class="container">
+    <h1>WebSocket Command Sender</h1>
+    <form action="/sendCommand" method="POST">
+        <label for="command">Enter Command:</label>
+        <input type="text" id="command" name="command" placeholder="READ, WRITE 1 data, etc." required>
+        <button type="submit">Send Command</button>
+    </form>
 
-<h2>Response:</h2>
-<div id="response">
-    <!-- The server response will be displayed here -->
+    <h2>Response:</h2>
+    <div id="response">
+        <!-- The server response will be displayed here -->
+    </div>
 </div>
 
 <script>
@@ -57,6 +165,5 @@
         console.error("WebSocket error:", event);
     });
 </script>
-
 </body>
 </html>

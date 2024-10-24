@@ -133,7 +133,6 @@ public class FileAccess {
                     }
                 }
 
-
                 if (!lineWritten) {
                     writer.write(data);
                     writer.newLine();
@@ -151,6 +150,14 @@ public class FileAccess {
             e.printStackTrace();
             return false;
         } finally {
+
+            // sleep 15 seconds to simulate a long operation
+//            try {
+//                Thread.sleep(15000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
             lock.writeLock().unlock();
         }
     }
