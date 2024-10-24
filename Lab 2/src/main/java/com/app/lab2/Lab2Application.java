@@ -31,7 +31,6 @@ public class Lab2Application {
     public DataSource dataSource() {
 
         PoolProperties p = new PoolProperties();
-//        p.setUrl("jdbc:mysql://localhost:3308/laptops?useUnicode=true&characterEncoding=utf8");
         p.setUrl(datasourceUrl);
         p.setDriverClassName("com.mysql.cj.jdbc.Driver");
         p.setUsername(datasourceUsername);

@@ -12,7 +12,7 @@ public class CommandWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        // Register a new endpoint for handling commands
+
         registry.addHandler(commandWebSocketHandler(), "/commands").setAllowedOrigins("*");
     }
 

@@ -12,18 +12,15 @@ public class CommandWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-        String command = message.getPayload();  // Get the command from the client
-
-        // Process the command, e.g., interacting with the file or database
+        String command = message.getPayload();
         String response = processCommand(command);
 
-        // Send response back to the client
         session.sendMessage(new TextMessage(response));
     }
 
     private String processCommand(String command) {
         System.out.println("Received command: " + command);
-        // You can implement different actions based on the command received
+
         if (command.startsWith("write ")) {
             String data = command.substring("write".length()).trim();
             FileAccess.writeToFile(data);
