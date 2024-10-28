@@ -91,7 +91,8 @@ public class ProductController {
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<Product> products = objectMapper.readValue(file.getInputStream(), new TypeReference<List<Product>>() {});
+            List<Product> products = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {
+            });
 
             for (Product product : products) {
                 productService.saveProduct(product);

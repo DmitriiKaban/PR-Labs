@@ -22,7 +22,7 @@ public class ChatController {
     private final ChatMessagesRepository chatMessageRepository;
     private final ChatMessageService chatMessageService;
 
-    @MessageMapping("/sendMessage")
+    @MessageMapping("/sendMessage") // maps messages sent to /app/sendMessage
     @SendTo("/topic/public")
     public ChatMessage sendMessage(ChatMessage message) {
 

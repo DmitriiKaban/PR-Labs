@@ -2,14 +2,20 @@ package com.app.lab2.tcp;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.*;
 
 public class FileAccess {
 
     private static final String FILE_PATH = "data.txt";
     private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private static final Semaphore writePrioritySemaphore = new Semaphore(1, true); // Ensures write-priority
+    private static int pendingWrites = 0; // Counter for pending write operations
+    private static final Object writeLock = new Object(); // Lock for write counter
 
-    private static void ensureFileExists() {
+    static void ensureFileExists() {
         try {
             if (!Files.exists(Paths.get(FILE_PATH))) {
                 Files.createFile(Paths.get(FILE_PATH));
@@ -20,37 +26,60 @@ public class FileAccess {
     }
 
     public static void writeToFile(String data) {
-        lock.writeLock().lock();
         try {
+            synchronized (writeLock) {
+                pendingWrites++;
+            }
+
+            writePrioritySemaphore.acquire(); // Block read requests until all writes are done
+            lock.writeLock().lock();
+
             ensureFileExists();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
                 writer.write(data);
                 writer.newLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                lock.writeLock().unlock();
+                synchronized (writeLock) {
+                    pendingWrites--;
+                    if (pendingWrites == 0) {
+                        writePrioritySemaphore.release(); // Allow reads when no pending writes
+                    }
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            lock.writeLock().unlock();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     public static String readFromFile() {
-        lock.readLock().lock();
         try {
+            writePrioritySemaphore.acquire(); // Block until all writes are done
+            lock.readLock().lock();
+
             ensureFileExists();
             return new String(Files.readAllBytes(Paths.get(FILE_PATH)));
         } catch (IOException e) {
             e.printStackTrace();
             return "Error reading file";
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "Read interrupted";
         } finally {
             lock.readLock().unlock();
+            writePrioritySemaphore.release();
         }
     }
 
     public static String readSpecificLine(int lineNumber) {
-        lock.readLock().lock();
         try {
+            writePrioritySemaphore.acquire(); // Block until all writes are done
+            lock.readLock().lock();
+
             ensureFileExists();
+
             try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
                 String line;
                 int currentLine = 0;
@@ -61,17 +90,25 @@ public class FileAccess {
                 }
                 return null;
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return "Error reading file";
         } finally {
             lock.readLock().unlock();
+            writePrioritySemaphore.release();
         }
     }
 
     public static boolean deleteSpecificLine(int lineNumber) {
-        lock.writeLock().lock();
+
         try {
+            synchronized (writeLock) {
+                pendingWrites++;
+            }
+
+            writePrioritySemaphore.acquire(); // Block read requests until all writes are done
+            lock.writeLock().lock();
+
             ensureFileExists();
             File tempFile = new File("temp.txt");
             File originalFile = new File(FILE_PATH);
@@ -102,14 +139,29 @@ public class FileAccess {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
+            synchronized (writeLock) {
+                pendingWrites--;
+                if (pendingWrites == 0) {
+                    writePrioritySemaphore.release(); // Allow reads when no pending writes
+                }
+            }
         }
     }
 
     public static boolean writeToSpecificLine(int lineNumber, String data) {
-        lock.writeLock().lock();
+
         try {
+            synchronized (writeLock) {
+                pendingWrites++;
+            }
+
+            writePrioritySemaphore.acquire(); // Block read requests until all writes are done
+            lock.writeLock().lock();
+
             ensureFileExists();
             File tempFile = new File("temp.txt");
             File originalFile = new File(FILE_PATH);
@@ -149,22 +201,31 @@ public class FileAccess {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
-
-            // sleep 15 seconds to simulate a long operation
-//            try {
-//                Thread.sleep(15000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-
-            lock.writeLock().unlock();
+            {
+                lock.writeLock().unlock();
+                synchronized (writeLock) {
+                    pendingWrites--;
+                    if (pendingWrites == 0) {
+                        writePrioritySemaphore.release(); // Allow reads when no pending writes
+                    }
+                }
+            }
         }
     }
 
     public static String clearFile() {
-        lock.writeLock().lock();
         try {
+
+            synchronized (writeLock) {
+                pendingWrites++;
+            }
+
+            writePrioritySemaphore.acquire(); // Block read requests until all writes are done
+            lock.writeLock().lock();
+
             ensureFileExists();
             Files.delete(Paths.get(FILE_PATH));
             Files.createFile(Paths.get(FILE_PATH));
@@ -172,8 +233,16 @@ public class FileAccess {
         } catch (IOException e) {
             e.printStackTrace();
             return "Error clearing file";
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
+            synchronized (writeLock) {
+                pendingWrites--;
+                if (pendingWrites == 0) {
+                    writePrioritySemaphore.release(); // Allow reads when no pending writes
+                }
+            }
         }
     }
 }

@@ -17,8 +17,8 @@ public class CommandWebSocketConfig implements WebSocketConfigurer {
     }
 
     @Bean
-    public CommandWebSocketHandler commandWebSocketHandler() {
-        return new CommandWebSocketHandler();
+    public WebSocketHandler commandWebSocketHandler() {
+        return new WebSocketHandler();
     }
 }
 

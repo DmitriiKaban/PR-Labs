@@ -14,8 +14,8 @@ services:
       - "3336:3306"  # Host port 3336 mapped to container port 3306
     volumes:
       - db_data:/var/lib/mysql
-    networks:
-      - app-network
+#    networks:
+#      - app-network
 
   # Spring Boot Application Service
   app:
@@ -29,12 +29,12 @@ services:
       SPRING_DATASOURCE_USERNAME: root
     ports:
       - "8081:8081"
-    networks:
-      - app-network
+#    networks:
+#      - app-network
 
 volumes:
   db_data:
 
-networks:
-  app-network:
-    driver: bridge
+#networks:
+#  app-network:
+#    driver: bridge
