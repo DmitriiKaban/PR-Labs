@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: usage_message
+
+logging:
+  level:
+    org: ERROR
+
+tutorial:
+  client:
+    duration: 10000
+
+# set port to 8082
+server:
+  port: 8082

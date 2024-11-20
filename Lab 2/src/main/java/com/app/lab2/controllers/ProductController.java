@@ -89,6 +89,8 @@ public class ProductController {
             return "redirect:/createProduct";
         }
 
+        System.out.println("HELLO");
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Product> products = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {
