@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -20,16 +22,19 @@ import java.util.concurrent.TimeUnit;
 public class Uploader {
 
     private final Scraper scraper;
-    private final Channel channel;
-    private final RabbitMQConfig config;
     private final FTPUploader ftpUploader;
 
-    @Scheduled(fixedRateString = "1", timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRateString = "15", timeUnit = TimeUnit.SECONDS)
     public void publishProducts() throws IOException {
         List<Product> fetchedProducts = scraper.getProducts();
-        System.out.println("Publishing products...");
+        System.out.println("Uploading products.json ...");
 
         String message = new ObjectMapper().writeValueAsString(fetchedProducts);
+        File jsonFile = new File("products.json");
+        try (FileWriter writer = new FileWriter(jsonFile)) {
+            writer.write(message);
+        }
 
+        ftpUploader.uploadFileToFTP(jsonFile);
     }
 }
