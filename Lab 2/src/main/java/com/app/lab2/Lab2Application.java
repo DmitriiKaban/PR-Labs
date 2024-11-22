@@ -1,5 +1,6 @@
 package com.app.lab2;
 
+import com.app.lab2.raft.Node;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -39,5 +40,4 @@ public class Lab2Application {
         datasource.setPoolProperties(p);
         return datasource;
     }
-
 }

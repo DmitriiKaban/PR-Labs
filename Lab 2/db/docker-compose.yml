@@ -15,8 +15,3 @@ services:
 
 volumes:
   mysql-laptops:
-#    healthcheck:
-#      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5

@@ -24,11 +24,8 @@ public class FTPUploader {
             ftpClient.connect(server, port);
             ftpClient.login(user, pass);
             ftpClient.enterLocalPassiveMode();
-
-            // Set file type to binary
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
-            // Upload the file
             try (FileInputStream inputStream = new FileInputStream(file)) {
                 String remoteFilePath = "/" + file.getName();
                 boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
