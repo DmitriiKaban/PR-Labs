@@ -17,7 +17,7 @@ public class RabbitMQConfig {
     @Bean
     public Connection rabbitMQConnection() throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
+        factory.setHost("rabbitmq");
         return factory.newConnection();
     }
 

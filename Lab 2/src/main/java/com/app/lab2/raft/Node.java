@@ -1,9 +1,7 @@
 package com.app.lab2.raft;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketTimeoutException;
+import java.io.IOException;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -139,7 +137,7 @@ public class Node {
             sendMessage("LEADER_ANNOUNCE " + nodeId + " " + currentTerm, otherPort);
         }
 
-        sendMessage("LEADER " + port, 9090);
+        sendMessage("LEADER " + port + " app_lab3 " + addressPortMap.get(port), 9090);
 
         sendHeartbeats();
     }
@@ -191,15 +189,12 @@ public class Node {
 
             case "VOTE":
                 int term = Integer.parseInt(parts[4]);
-//                int voterId = Integer.parseInt(parts[6]);
-//                int voterPort = Integer.parseInt(parts[9]);
 
                 if (term == currentTerm && currentState == State.CANDIDATE) {
                     votesGranted++;
                     if (votesGranted >= CLUSTER_SIZE / 2) {
                         becomeLeader();
                     }
-//                    System.out.println("Node " + nodeId + " received a vote from Node " + voterId + ", port: " + voterPort);
                 }
                 break;
 
@@ -236,7 +231,18 @@ public class Node {
         executor.submit(() -> {
             try {
                 byte[] buffer = message.getBytes();
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(addressPortMap.get(targetPort)), targetPort);
+
+                DatagramPacket packet;
+                if (message.startsWith("LEADER ")) {
+                    packet = new DatagramPacket(
+                            buffer,
+                            buffer.length,
+                            InetAddress.getByName("app_lab3"),
+                            targetPort
+                    );
+                } else {
+                    packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(addressPortMap.get(targetPort)), targetPort);
+                }
                 System.out.println("Sending message to address: " + addressPortMap.get(targetPort) + " port: " + targetPort);
                 socket.send(packet);
                 if (message.startsWith("PING") || message.startsWith("PONG") || message.startsWith("VOTE") || message.startsWith("LEADER_ANNOUNCE") || message.startsWith("HEARTBEAT"))

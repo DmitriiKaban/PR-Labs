@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # MySQL Database Service
   db:
     image: mysql:8.0
     container_name: mysql_db
@@ -15,11 +14,9 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-
   app1:
-    image: lab2  # Replace with your app's Docker image name
+    image: lab2
     container_name: spring_app1
-
     depends_on:
       - db
     environment:
@@ -34,7 +31,7 @@ services:
       - "8092:8092"
 
   app2:
-    image: lab2  # Replace with your app's Docker image name
+    image: lab2
     container_name: spring_app2
     depends_on:
       - db
@@ -50,7 +47,7 @@ services:
       - "8093:8093"
 
   app3:
-    image: lab2  # Replace with your app's Docker image name
+    image: lab2
     container_name: spring_app3
     depends_on:
       - db
@@ -66,7 +63,7 @@ services:
       - "8094:8094"
 
   app4:
-    image: lab2  # Replace with your app's Docker image name
+    image: lab2
     container_name: spring_app4
     depends_on:
       - db
@@ -80,6 +77,39 @@ services:
     ports:
       - "8084:8081"
       - "8095:8095"
+
+  app_lab3:
+    image: lab3
+    container_name: app_lab3
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/laptops  # Use the internal MySQL port 3306
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_USERNAME: root
+    ports:
+      - "8085:8081"
+      - "9090:9090"
+
+  ftp_server:
+    image: stilliard/pure-ftpd:hardened
+    container_name: ftp_server
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      FTP_USER_NAME: testuser
+      FTP_USER_PASS: testpass
+      FTP_USER_HOME: /home/testuser
+    volumes:
+      - ./ftp_data:/home/testuser
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 volumes:
   db_data:

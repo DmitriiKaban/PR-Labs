@@ -11,7 +11,7 @@ import java.io.IOException;
 @Component
 public class FTPUploader {
 
-    private String server = "localhost";
+    private String server = "ftp_server";
     private int port = 21;
     private String user = "testuser";
     private String pass = "testpass";

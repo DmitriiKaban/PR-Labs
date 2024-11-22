@@ -11,20 +11,29 @@ public class UDPListener {
 
     @Getter
     private String leaderPort;
+    @Getter
+    private String leaderAddress;
     private DatagramSocket socket;
+    private boolean wasInvoked = false;
 
-    public UDPListener() {
-        try {
-            socket = new DatagramSocket(9090);
-            startUDPListener();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public UDPListener() { }
 
     public void startUDPListener() {
+
+        if (wasInvoked) {
+            return;
+        }
+
+        wasInvoked = true;
+
         new Thread(() -> {
             try {
+                if (socket == null) {
+                    socket = new DatagramSocket(9090);
+                }
+
+                System.out.println("UDP listener started on port 9090");
+
                 byte[] buffer = new byte[1024];
                 while (true) {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -44,8 +53,7 @@ public class UDPListener {
 
         if (type.equals("LEADER")) {
             leaderPort = parts[1];
-
-            System.out.println("Leader port: " + leaderPort);
+            leaderAddress = parts[3];
         } else {
             System.out.println("Unknown message type: " + message);
         }
