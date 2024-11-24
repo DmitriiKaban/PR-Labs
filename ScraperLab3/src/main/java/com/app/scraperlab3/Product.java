@@ -1,4 +1,4 @@
-package com.app.lab3.models;
+package com.app.scraperlab3;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +12,11 @@ public class Product {
     public static final double DOLLARS_TO_LEI = 19.31;
 
     private Long id;
+
     private String name;
+
     private Double price;
+
     private String manufacturer;
 
     public Product(String name, Double aDouble, String manufacturer) {

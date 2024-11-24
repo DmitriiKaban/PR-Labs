@@ -35,7 +35,7 @@ public class DownloadingManager {
             // then - send the file to the leader server
 
             if (udpListener.getLeaderPort() != null) {
-                System.out.println("URL: " + SERVER_URL + udpListener.getLeaderAddress() + ":" + "8081" + SERVER_METHOD);
+                System.out.println("URL: " + SERVER_URL + udpListener.getLeaderAddress() + ":8081" + SERVER_METHOD);
                 multipartUploader.uploadFilePOST(SERVER_URL + udpListener.getLeaderAddress() + ":" + "8081" + SERVER_METHOD, downloadedFile);
             }
 

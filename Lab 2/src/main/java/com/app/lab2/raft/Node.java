@@ -137,7 +137,7 @@ public class Node {
             sendMessage("LEADER_ANNOUNCE " + nodeId + " " + currentTerm, otherPort);
         }
 
-        sendMessage("LEADER " + port + " app_lab3 " + addressPortMap.get(port), 9090);
+        sendMessage("LEADER " + port + " app-lab3 " + addressPortMap.get(port), 9090);
 
         sendHeartbeats();
     }
@@ -237,7 +237,7 @@ public class Node {
                     packet = new DatagramPacket(
                             buffer,
                             buffer.length,
-                            InetAddress.getByName("app_lab3"),
+                            InetAddress.getByName("app-lab3"),
                             targetPort
                     );
                 } else {

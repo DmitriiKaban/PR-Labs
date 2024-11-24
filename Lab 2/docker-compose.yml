@@ -16,7 +16,7 @@ services:
 
   app1:
     image: lab2
-    container_name: spring_app1
+    container_name: spring-app1
     depends_on:
       - db
     environment:
@@ -25,14 +25,14 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       NODE_ID: 1
       CLUSTER_PORTS: 8092,8093,8094,8095
-      CLUSTER_ADDRESSES: spring_app1,spring_app2,spring_app3,spring_app4
+      CLUSTER_ADDRESSES: spring-app1,spring-app2,spring-app3,spring-app4
     ports:
       - "8081:8081"
       - "8092:8092"
 
   app2:
     image: lab2
-    container_name: spring_app2
+    container_name: spring-app2
     depends_on:
       - db
     environment:
@@ -41,14 +41,14 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       NODE_ID: 2
       CLUSTER_PORTS: 8092,8093,8094,8095
-      CLUSTER_ADDRESSES: spring_app1,spring_app2,spring_app3,spring_app4
+      CLUSTER_ADDRESSES: spring-app1,spring-app2,spring-app3,spring-app4
     ports:
       - "8082:8081"
       - "8093:8093"
 
   app3:
     image: lab2
-    container_name: spring_app3
+    container_name: spring-app3
     depends_on:
       - db
     environment:
@@ -57,14 +57,14 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       NODE_ID: 3
       CLUSTER_PORTS: 8092,8093,8094,8095
-      CLUSTER_ADDRESSES: spring_app1,spring_app2,spring_app3,spring_app4
+      CLUSTER_ADDRESSES: spring-app1,spring-app2,spring-app3,spring-app4
     ports:
       - "8083:8081"
       - "8094:8094"
 
   app4:
     image: lab2
-    container_name: spring_app4
+    container_name: spring-app4
     depends_on:
       - db
     environment:
@@ -73,14 +73,14 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       NODE_ID: 4
       CLUSTER_PORTS: 8092,8093,8094,8095
-      CLUSTER_ADDRESSES: spring_app1,spring_app2,spring_app3,spring_app4
+      CLUSTER_ADDRESSES: spring-app1,spring-app2,spring-app3,spring-app4
     ports:
       - "8084:8081"
       - "8095:8095"
 
-  app_lab3:
+  app-lab3:
     image: lab3
-    container_name: app_lab3
+    container_name: app-lab3
     depends_on:
       - rabbitmq
     environment:
@@ -91,9 +91,21 @@ services:
       - "8085:8081"
       - "9090:9090"
 
-  ftp_server:
+  lab3-scraper:
+    image: lab3_scraper
+    container_name: lab3-scraper
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/laptops
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_USERNAME: root
+    ports:
+      - "8086:8081"
+
+  ftp-server:
     image: stilliard/pure-ftpd:hardened
-    container_name: ftp_server
+    container_name: ftp-server
     ports:
       - "21:21"
       - "30000-30009:30000-30009"

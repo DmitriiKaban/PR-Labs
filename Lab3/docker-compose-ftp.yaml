@@ -1,8 +1,8 @@
 version : '3.8'
 services :
-  ftp_server :
+  ftp-server :
     image : stilliard/pure-ftpd:hardened
-    container_name : ftp_server
+    container_name : ftp-server
     ports :
       - "21:21"
       - "30000-30009:30000-30009" # Passive ports for FTP

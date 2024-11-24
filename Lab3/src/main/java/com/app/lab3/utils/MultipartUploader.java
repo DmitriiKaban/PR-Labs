@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,16 @@ public class MultipartUploader {
         body.add("file", new FileSystemResource(file));
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        String response = restTemplate.postForObject(serverUrl, requestEntity, String.class);
 
-        System.out.println("Server response: " + response);
+        try {
+            String response = restTemplate.postForObject(serverUrl, requestEntity, String.class);
+            System.out.println("Server response: " + response);
+        } catch (HttpClientErrorException e) {
+            System.err.println("HTTP Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error occurred during the POST request.");
+        }
     }
+
 }

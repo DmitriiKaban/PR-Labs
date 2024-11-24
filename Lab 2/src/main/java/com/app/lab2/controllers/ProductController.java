@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -83,30 +85,27 @@ public class ProductController {
     }
 
     @PostMapping("/uploadJson")
-    public String uploadJsonFile(MultipartFile file, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<String> uploadJsonFile(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "Please select a file to upload.");
-            return "redirect:/createProduct";
+            return ResponseEntity.badRequest().body("File is empty. Please upload a valid file.");
         }
 
-        System.out.println("HELLO");
-
         try {
+            System.out.println("Received file: " + file.getOriginalFilename());
+
             ObjectMapper objectMapper = new ObjectMapper();
-            List<Product> products = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {
-            });
+            List<Product> products = objectMapper.readValue(file.getInputStream(), new TypeReference<>() {});
 
             for (Product product : products) {
                 productService.saveProduct(product);
             }
 
-            redirectAttributes.addFlashAttribute("successFile", "File uploaded and products saved successfully!");
-
+            return ResponseEntity.ok("File uploaded and products saved successfully!");
         } catch (IOException e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Failed to process the file.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to process the file. Error: " + e.getMessage());
         }
-
-        return "redirect:/createProduct";
     }
+
 }

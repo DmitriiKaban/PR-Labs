@@ -22,7 +22,7 @@
 //    private final Channel channel;
 //    private final RabbitMQConfig config;
 //
-//    @Scheduled(fixedRateString = "1", timeUnit = TimeUnit.SECONDS)
+//    @Scheduled(fixedRateString = "60", timeUnit = TimeUnit.SECONDS)
 //    public void publishProducts() throws IOException {
 //        List<Product> fetchedProducts = scraper.getProducts();
 //        System.out.println("Publishing products...");
