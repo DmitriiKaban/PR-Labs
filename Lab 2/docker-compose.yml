@@ -13,6 +13,8 @@ services:
       - "3336:3306"  # Host port 3336 mapped to container port 3306
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - app-network
 
   app1:
     image: lab2
@@ -29,6 +31,8 @@ services:
     ports:
       - "8081:8081"
       - "8092:8092"
+    networks:
+      - app-network
 
   app2:
     image: lab2
@@ -45,6 +49,8 @@ services:
     ports:
       - "8082:8081"
       - "8093:8093"
+    networks:
+      - app-network
 
   app3:
     image: lab2
@@ -61,6 +67,8 @@ services:
     ports:
       - "8083:8081"
       - "8094:8094"
+    networks:
+      - app-network
 
   app4:
     image: lab2
@@ -77,31 +85,39 @@ services:
     ports:
       - "8084:8081"
       - "8095:8095"
+    networks:
+      - app-network
 
   app-lab3:
     image: lab3
     container_name: app-lab3
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/laptops  # Use the internal MySQL port 3306
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/laptops
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_DATASOURCE_USERNAME: root
     ports:
       - "8085:8081"
       - "9090:9090"
+    networks:
+      - app-network
 
   lab3-scraper:
     image: lab3_scraper
     container_name: lab3-scraper
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/laptops
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_DATASOURCE_USERNAME: root
     ports:
       - "8086:8081"
+    networks:
+      - app-network
 
   ftp-server:
     image: stilliard/pure-ftpd:hardened
@@ -115,6 +131,8 @@ services:
       FTP_USER_HOME: /home/testuser
     volumes:
       - ./ftp_data:/home/testuser
+    networks:
+      - app-network
 
   rabbitmq:
     image: rabbitmq:4.0-management
@@ -122,6 +140,13 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
 volumes:
   db_data:

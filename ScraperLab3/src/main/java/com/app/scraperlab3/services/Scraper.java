@@ -1,5 +1,6 @@
-package com.app.scraperlab3;
+package com.app.scraperlab3.services;
 
+import com.app.scraperlab3.models.Product;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.app.scraperlab3.Product.DOLLARS_TO_LEI;
+import static com.app.scraperlab3.models.Product.DOLLARS_TO_LEI;
 
 
 @Component

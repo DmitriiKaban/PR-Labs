@@ -1,6 +1,7 @@
-package com.app.scraperlab3;
+package com.app.scraperlab3.services;
 
 import com.app.scraperlab3.config.RabbitMQConfig;
+import com.app.scraperlab3.models.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;

@@ -1,4 +1,4 @@
-package com.app.scraperlab3;
+package com.app.scraperlab3.services;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.net.ftp.FTP;

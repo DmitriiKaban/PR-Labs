@@ -1,11 +1,14 @@
 package com.app.lab3.programs;
 
 import com.app.lab3.config.RabbitMQConfig;
+import com.app.lab3.models.EmailDetails;
+import com.app.lab3.services.SMTPService;
 import com.app.lab3.utils.MultipartUploader;
 import com.app.lab3.utils.UDPListener;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.net.smtp.SMTP;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +22,9 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class Consumer {
 
+    private boolean sentEmail = false;
     private final Channel channel;
+    private final SMTPService smtpService;
     private final RabbitMQConfig config;
     private final UDPListener udpListener;
     private final MultipartUploader multipartUploader;
@@ -28,6 +33,15 @@ public class Consumer {
 
     @Scheduled(fixedRateString = "10", timeUnit = TimeUnit.SECONDS)
     public void consumeProducts() throws IOException {
+
+        if (!sentEmail) {
+            System.out.println("Email sent to the admin");
+
+            sentEmail = true;
+            smtpService.sendSimpleMail(new EmailDetails("dmitrii.cravcenco@isa.utm.md", "Started Service lab3", "Server is up!"));
+//            smtpService.sendMessage("dmitrii.cravcenco@isa.utm.md", "Started Service lab3", "Server is up!");
+        }
+
         String queueName = config.getTaskQueueName();
 
         System.out.println(" [*] Waiting for messages from " + queueName);
@@ -49,33 +63,6 @@ public class Consumer {
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
         });
     }
-//
-//    private void uploadProduct(Product product) {
-//        String urlString = "http://" + udpListener.getLeaderAddress() + ":8081/createProduct";
-////        System.out.println("URL: " + urlString);
-//        try {
-//            URL url = new URL(urlString);
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//
-//            connection.setRequestMethod("POST");
-//            connection.setRequestProperty("Content-Type", "application/json");
-//            connection.setDoOutput(true);
-//
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            String productJson = objectMapper.writeValueAsString(product);
-//
-//            try (OutputStream os = connection.getOutputStream()) {
-//                byte[] input = productJson.getBytes("utf-8");
-//                os.write(input, 0, input.length);
-//            }
-//
-//            int responseCode = connection.getResponseCode();
-//            System.out.println("Response Code: " + responseCode);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
 
 

@@ -1,4 +1,4 @@
-package com.app.scraperlab3;
+package com.app.scraperlab3.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

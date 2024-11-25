@@ -1,4 +1,4 @@
-package com.app.scraperlab3;
+package com.app.scraperlab3.services;
 
 import org.springframework.stereotype.Component;
 
